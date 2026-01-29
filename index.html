@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <title>game-clicker</title>
     <link rel="stylesheet" href="style.css">
+    <meta name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 </head>
 <body>
 
@@ -63,6 +65,11 @@ firebase.initializeApp({
     projectId: "clicker-game-b9bfd"
 });
 const db = firebase.firestore();
+    
+const isMobile = window.matchMedia("(max-width: 768px)").matches;
+if (isMobile) {
+    document.body.classList.add("mobile");
+}
 
 const profileBtn = document.getElementById("profileBtn");
 const profileMenu = document.getElementById("profileMenu");
@@ -342,4 +349,5 @@ function spawnPopups() {
 
 </body>
 </html>
+
 
