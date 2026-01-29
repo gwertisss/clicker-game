@@ -64,7 +64,6 @@ firebase.initializeApp({
 });
 const db = firebase.firestore();
 
-/* ===== ПРОФИЛЬ ===== */
 const profileBtn = document.getElementById("profileBtn");
 const profileMenu = document.getElementById("profileMenu");
 const changeNameBtn = document.getElementById("changeNameBtn");
@@ -81,12 +80,10 @@ document.addEventListener("click", e => {
     }
 });
 
-/* ===== ПОДТВЕРЖДЕНИЕ УДАЛЕНИЯ ===== */
 const confirmModal = document.getElementById("confirmModal");
 const confirmYes = document.getElementById("confirmYes");
 const confirmNo = document.getElementById("confirmNo");
 
-/* ===== ЛИДЕРБОРД ===== */
 function saveResult(name, score) {
     if (!name || score <= 0) return Promise.resolve();
     const ref = db.collection("leaderboard");
@@ -122,7 +119,6 @@ function loadLeaderboard() {
         });
 }
 
-/* ===== ИГРА ===== */
 let score = 0;
 let time = 3;
 let timer;
@@ -155,7 +151,6 @@ if (playerName) {
     modal.style.display = "flex";
 }
 
-/* ===== СМЕНА ИМЕНИ (ИСПРАВЛЕНО) ===== */
 changeNameBtn.onclick = () => {
     profileMenu.style.display = "none";
     modal.style.display = "flex";
@@ -188,7 +183,6 @@ startBtn.onclick = () => {
     }
 };
 
-/* ===== УДАЛЕНИЕ ПОЛЬЗОВАТЕЛЯ ===== */
 deleteUserBtn.onclick = () => {
     profileMenu.style.display = "none";
     confirmModal.style.display = "flex";
@@ -211,7 +205,6 @@ confirmYes.onclick = () => {
     modal.style.display = "flex";
 };
 
-/* ===== ТАЙМЕР ===== */
 function startTimer() {
     clearInterval(timer);
     time = 3;
@@ -232,7 +225,6 @@ function startTimer() {
     }, 1000);
 }
 
-/* ===== X2 ===== */
 function activateX2() {
     if (x2Active) return;
 
@@ -286,7 +278,6 @@ function spawnX2Button() {
     }, 7000);
 }
 
-/* ===== КЛИК ===== */
 button.onclick = () => {
     score += multiplier;
     scoreEl.textContent = score;
@@ -314,7 +305,6 @@ button.onclick = () => {
 
 loadLeaderboard();
 
-/* ===== ВИРУСЫ ===== */
 function spawnPopups() {
     if (score === 0) return;
 
@@ -352,3 +342,4 @@ function spawnPopups() {
 
 </body>
 </html>
+
