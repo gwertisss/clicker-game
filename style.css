@@ -1,4 +1,9 @@
 body {
+    overscroll-behavior: none;
+}
+
+
+body {
     margin: 0;
     height: 100vh;
     background-color: black;
@@ -7,6 +12,42 @@ body {
     display: flex;
     overflow: hidden;
 }
+
+* {
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+
+.mobile #clickBtn {
+    font-size: 40px;
+    padding: 40px 70px;
+    border-radius: 16px;
+}
+
+.mobile .score {
+    font-size: 34px;
+}
+
+.mobile .timer {
+    font-size: 36px;
+}
+
+.mobile .x2-button {
+    font-size: 26px;
+    padding: 28px 45px;
+}
+
+.mobile .annoy-popup {
+    width: min(90vw, 500px);
+    font-size: 22px;
+}
+
+#clickBtn {
+    touch-action: manipulation;
+}
+
 
 .leaderboard {
     width: 250px;
@@ -326,4 +367,5 @@ body {
     cursor: pointer;
     font-weight: bold;
 }
+
 
