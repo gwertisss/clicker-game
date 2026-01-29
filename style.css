@@ -1,0 +1,329 @@
+body {
+    margin: 0;
+    height: 100vh;
+    background-color: black;
+    color: white;
+    font-family: Arial, sans-serif;
+    display: flex;
+    overflow: hidden;
+}
+
+.leaderboard {
+    width: 250px;
+    border-right: 2px solid #444;
+    padding: 20px;
+    z-index: 2;
+}
+
+.game {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.game-over {
+    font-size: 28px;
+    color: #e74c3c;
+    margin-bottom: 10px;
+    display: none;
+}
+
+.timer {
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.score {
+    font-size: 28px;
+    margin-bottom: 30px;
+}
+
+#clickBtn {
+    font-size: 32px;
+    padding: 30px 60px;
+    border: none;
+    border-radius: 10px;
+    background-color: #1abc9c;
+    color: black;
+    cursor: pointer;
+}
+
+#clickBtn:disabled {
+    background-color: #555;
+    cursor: not-allowed;
+}
+
+.name-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.name-box {
+    background: #111;
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.profile {
+    position: fixed;
+    top: 10px;
+    right: 15px;
+    z-index: 20;
+}
+
+#profileBtn {
+    font-size: 26px;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.profile-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    margin-top: 5px;
+    background: #111;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.confirm-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 30;
+}
+
+.confirm-box {
+    background: #111;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+/* popups */
+#popupContainer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 50;
+}
+
+.annoy-popup {
+    position: absolute;
+    width: min(320px, 85vw);
+    background: #111;
+    border: 2px solid #333;
+    border-radius: 12px;
+    color: #ddd;
+    padding: 20px;
+    text-align: center;
+    pointer-events: auto;
+}
+
+.popup-text {
+    font-size: 20px;
+    line-height: 1.4;
+}
+
+.close-popup {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 18px;
+    color: #aaa;
+    cursor: pointer;
+}
+
+@media (max-width: 600px) {
+    .popup-text {
+        font-size: 18px;
+    }
+}
+
+.x2-timer {
+    font-size: 26px;
+    color: #00ff88;
+    margin-bottom: 10px;
+    animation: glow 1s infinite alternate;
+}
+
+@keyframes glow {
+    from { text-shadow: 0 0 5px #00ff88; }
+    to { text-shadow: 0 0 15px #00ff88; }
+}
+
+.x2-button {
+    position: absolute;
+    padding: 20px 35px;
+    font-size: 22px;
+    background-color: #00ff88;
+    color: black;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    z-index: 40;
+    font-weight: bold;
+}
+
+.x2-button span {
+    color:#00ff88;
+    font-weight: bold;
+}
+
+/* вирус */
+.annoy-popup {
+    position: absolute;
+    width: min(420px, 90vw);
+    min-height: 160px;
+    background: #111;
+    border: 2px solid #333;
+    border-radius: 14px;
+    padding: 25px;
+    z-index: 50;
+}
+
+.popup-text {
+    font-size: 22px;
+}
+
+body {
+    margin: 0;
+    height: 100vh;
+    background-color: black;
+    color: white;
+    font-family: Arial, sans-serif;
+    display: flex;
+    overflow: hidden;
+}
+
+.leaderboard {
+    width: 250px;
+    border-right: 2px solid #444;
+    padding: 20px;
+    z-index: 2;
+}
+
+.game {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.game-over {
+    font-size: 28px;
+    color: #e74c3c;
+    margin-bottom: 10px;
+    display: none;
+}
+
+.timer {
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.score {
+    font-size: 28px;
+    margin-bottom: 30px;
+}
+
+#clickBtn {
+    font-size: 32px;
+    padding: 30px 60px;
+    border: none;
+    border-radius: 10px;
+    background-color: #1abc9c;
+    color: black;
+    cursor: pointer;
+}
+
+.name-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.profile {
+    position: fixed;
+    top: 10px;
+    right: 15px;
+    z-index: 20;
+}
+
+.profile-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    background: #111;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.confirm-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 30;
+}
+
+#popupContainer {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+}
+
+.annoy-popup {
+    position: absolute;
+    background: #111;
+    border: 2px solid #333;
+    border-radius: 14px;
+    padding: 25px;
+    color: #ddd;
+}
+
+.x2-timer {
+    font-size: 26px;
+    color: #00ff88;
+    animation: glow 1s infinite alternate;
+}
+
+@keyframes glow {
+    from { text-shadow: 0 0 5px #00ff88; }
+    to { text-shadow: 0 0 15px #00ff88; }
+}
+
+.x2-button {
+    position: absolute;
+    padding: 20px 35px;
+    font-size: 22px;
+    background-color: #00ff88;
+    color: black;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: bold;
+}
+

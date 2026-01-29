@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>game-clicker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="profile">
+    <button id="profileBtn">👤</button>
+    <div class="profile-menu" id="profileMenu">
+        <button id="changeNameBtn">✏️ Поменять имя</button>
+        <button id="deleteUserBtn" class="danger">❌ Удалить пользователя</button>
+    </div>
+</div>
+
+<div class="confirm-modal" id="confirmModal">
+    <div class="confirm-box">
+        <p>
+            Вы точно хотите удалить этого пользователя?<br>
+            Ваши очки будут удалены без возможности возвращения
+        </p>
+        <div class="confirm-actions">
+            <button id="confirmYes" class="danger">Да</button>
+            <button id="confirmNo">Нет</button>
+        </div>
+    </div>
+</div>
+
+<div class="name-modal" id="nameModal">
+    <div class="name-box">
+        <h2>Введите имя</h2>
+        <input type="text" id="playerName" placeholder="Ваше имя" maxlength="12">
+        <button id="startGame">Начать игру</button>
+    </div>
+</div>
+
+<div class="leaderboard">
+    <h2>Лидеры</h2>
+    <ul id="leaderboardList"></ul>
+</div>
+
+<div class="game">
+    <div class="x2-timer" id="x2Timer">X2: <span id="x2Time">10</span></div>
+    <div class="game-over" id="gameOverText">Время вышло!</div>
+
+    <div class="timer">Время: <span id="time">3</span></div>
+    <div class="score">Очки: <span id="score">0</span></div>
+
+    <button id="clickBtn" disabled>нажми на меня</button>
+</div>
+
+<div id="popupContainer"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<script>
+firebase.initializeApp({
+    apiKey: "AIzaSyDYpHiMyKeVtzg_lcjfI4ebcXldzbnJZ3Q",
+    authDomain: "clicker-game-b9bfd.firebaseapp.com",
+    projectId: "clicker-game-b9bfd"
+});
+const db = firebase.firestore();
+
+/* ===== ПРОФИЛЬ ===== */
+const profileBtn = document.getElementById("profileBtn");
+const profileMenu = document.getElementById("profileMenu");
+const changeNameBtn = document.getElementById("changeNameBtn");
+const deleteUserBtn = document.getElementById("deleteUserBtn");
+
+profileBtn.onclick = () => {
+    profileMenu.style.display =
+        profileMenu.style.display === "block" ? "none" : "block";
+};
+
+document.addEventListener("click", e => {
+    if (!profileBtn.contains(e.target) && !profileMenu.contains(e.target)) {
+        profileMenu.style.display = "none";
+    }
+});
+
+/* ===== ПОДТВЕРЖДЕНИЕ УДАЛЕНИЯ ===== */
+const confirmModal = document.getElementById("confirmModal");
+const confirmYes = document.getElementById("confirmYes");
+const confirmNo = document.getElementById("confirmNo");
+
+/* ===== ЛИДЕРБОРД ===== */
+function saveResult(name, score) {
+    if (!name || score <= 0) return Promise.resolve();
+    const ref = db.collection("leaderboard");
+
+    return ref.where("name", "==", name).limit(1).get().then(snap => {
+        if (snap.empty) {
+            return ref.add({ name, score });
+        } else {
+            const doc = snap.docs[0];
+            if (score > doc.data().score) {
+                return doc.ref.update({ score });
+            }
+        }
+    });
+}
+
+function loadLeaderboard() {
+    const list = document.getElementById("leaderboardList");
+    list.innerHTML = "";
+    let place = 1;
+
+    db.collection("leaderboard")
+        .orderBy("score", "desc")
+        .limit(10)
+        .get()
+        .then(snap => {
+            snap.forEach(doc => {
+                const li = document.createElement("li");
+                li.textContent = `${place}. ${doc.data().name} — ${doc.data().score}`;
+                place++;
+                list.appendChild(li);
+            });
+        });
+}
+
+/* ===== ИГРА ===== */
+let score = 0;
+let time = 3;
+let timer;
+let playerName = localStorage.getItem("playerName");
+
+let multiplier = 1;
+let x2Active = false;
+let x2Interval;
+let x2Button = null;
+let returnBtnTimeout = null;
+
+const scoreEl = document.getElementById("score");
+const timeEl = document.getElementById("time");
+const button = document.getElementById("clickBtn");
+const gameOverText = document.getElementById("gameOverText");
+const x2Timer = document.getElementById("x2Timer");
+const x2TimeEl = document.getElementById("x2Time");
+
+x2Timer.style.display = "none";
+
+const modal = document.getElementById("nameModal");
+const startBtn = document.getElementById("startGame");
+const nameInput = document.getElementById("playerName");
+
+if (playerName) {
+    modal.style.display = "none";
+    button.disabled = false;
+    startTimer();
+} else {
+    modal.style.display = "flex";
+}
+
+/* ===== СМЕНА ИМЕНИ (ИСПРАВЛЕНО) ===== */
+changeNameBtn.onclick = () => {
+    profileMenu.style.display = "none";
+    modal.style.display = "flex";
+    nameInput.value = playerName || "";
+};
+
+startBtn.onclick = () => {
+    const newName = nameInput.value.trim();
+    if (!/^[a-zA-Zа-яА-Я0-9 ]{1,12}$/.test(newName)) return;
+
+    const oldName = playerName;
+    playerName = newName;
+    localStorage.setItem("playerName", newName);
+
+    modal.style.display = "none";
+    button.disabled = false;
+    startTimer();
+
+    if (oldName && oldName !== newName) {
+        db.collection("leaderboard")
+            .where("name", "==", oldName)
+            .limit(1)
+            .get()
+            .then(snap => {
+                if (!snap.empty) {
+                    snap.docs[0].ref.update({ name: newName })
+                        .then(loadLeaderboard);
+                }
+            });
+    }
+};
+
+/* ===== УДАЛЕНИЕ ПОЛЬЗОВАТЕЛЯ ===== */
+deleteUserBtn.onclick = () => {
+    profileMenu.style.display = "none";
+    confirmModal.style.display = "flex";
+};
+
+confirmNo.onclick = () => {
+    confirmModal.style.display = "none";
+};
+
+confirmYes.onclick = () => {
+    confirmModal.style.display = "none";
+
+    localStorage.removeItem("playerName");
+    playerName = null;
+
+    score = 0;
+    scoreEl.textContent = 0;
+    button.disabled = true;
+
+    modal.style.display = "flex";
+};
+
+/* ===== ТАЙМЕР ===== */
+function startTimer() {
+    clearInterval(timer);
+    time = 3;
+    timeEl.textContent = time;
+    gameOverText.style.display = "none";
+
+    timer = setInterval(() => {
+        time--;
+        timeEl.textContent = time;
+
+        if (time === 0) {
+            clearInterval(timer);
+            saveResult(playerName, score).then(loadLeaderboard);
+            score = 0;
+            scoreEl.textContent = score;
+            gameOverText.style.display = "block";
+        }
+    }, 1000);
+}
+
+/* ===== X2 ===== */
+function activateX2() {
+    if (x2Active) return;
+
+    x2Active = true;
+    multiplier = 2;
+    x2Timer.style.display = "block";
+
+    let x2Time = 10;
+    x2TimeEl.textContent = x2Time;
+
+    x2Interval = setInterval(() => {
+        x2Time--;
+        x2TimeEl.textContent = x2Time;
+
+        if (x2Time === 0) {
+            clearInterval(x2Interval);
+            multiplier = 1;
+            x2Active = false;
+            x2Timer.style.display = "none";
+        }
+    }, 1000);
+}
+
+function spawnX2Button() {
+    if (x2Button || x2Active) return;
+
+    x2Button = document.createElement("button");
+    x2Button.className = "x2-button";
+    x2Button.textContent = "X2";
+
+    const leaderboardWidth = document.querySelector(".leaderboard").offsetWidth;
+    const x = leaderboardWidth + 40 + Math.random() * (window.innerWidth - leaderboardWidth - 200);
+    const y = 40 + Math.random() * (window.innerHeight - 200);
+
+    x2Button.style.left = x + "px";
+    x2Button.style.top = y + "px";
+
+    x2Button.onclick = () => {
+        x2Button.remove();
+        x2Button = null;
+        activateX2();
+    };
+
+    document.body.appendChild(x2Button);
+
+    setTimeout(() => {
+        if (x2Button) {
+            x2Button.remove();
+            x2Button = null;
+        }
+    }, 7000);
+}
+
+/* ===== КЛИК ===== */
+button.onclick = () => {
+    score += multiplier;
+    scoreEl.textContent = score;
+    startTimer();
+
+    if (score % 200 === 0) spawnX2Button();
+
+    if (score % 800 === 0) {
+        const leaderboardWidth = document.querySelector(".leaderboard").offsetWidth;
+        const x = leaderboardWidth + 40 + Math.random() * (window.innerWidth - leaderboardWidth - 200);
+        const y = 40 + Math.random() * (window.innerHeight - 200);
+
+        button.style.position = "absolute";
+        button.style.left = x + "px";
+        button.style.top = y + "px";
+
+        clearTimeout(returnBtnTimeout);
+        returnBtnTimeout = setTimeout(() => {
+            button.style.position = "";
+            button.style.left = "";
+            button.style.top = "";
+        }, 10000);
+    }
+};
+
+loadLeaderboard();
+
+/* ===== ВИРУСЫ ===== */
+function spawnPopups() {
+    if (score === 0) return;
+
+    const rect = button.getBoundingClientRect();
+
+    for (let i = 0; i < 2; i++) {
+        const popup = document.createElement("div");
+        popup.className = "annoy-popup";
+        popup.innerHTML = `
+            <button class="close-popup">✕</button>
+            <div class="popup-text">
+                ой, я куда-то не туда нажал<br>
+                и что-то скачалось...
+            </div>
+        `;
+
+        popup.style.left = rect.left - 100 + Math.random() * 200 + "px";
+        popup.style.top = rect.top - 80 + Math.random() * 160 + "px";
+
+        document.getElementById("popupContainer").appendChild(popup);
+
+        const remove = () => popup.remove();
+        popup.querySelector(".close-popup").onclick = remove;
+        setTimeout(remove, 10000);
+    }
+}
+
+(function popupLoop() {
+    setTimeout(() => {
+        spawnPopups();
+        popupLoop();
+    }, (60 + Math.random() * 60) * 1000);
+})();
+</script>
+
+</body>
+</html>
